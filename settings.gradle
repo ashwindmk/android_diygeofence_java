@@ -1,0 +1,2 @@
+include ':app', ':diy-geofence-java'
+rootProject.name='DiyGeofence Java Demo'
