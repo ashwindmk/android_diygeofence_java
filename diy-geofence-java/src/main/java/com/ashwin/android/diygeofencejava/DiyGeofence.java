@@ -265,9 +265,9 @@ public class DiyGeofence {
         int newAccuracy;
         if (min == Double.MAX_VALUE) {
             newAccuracy = SharedPrefsManager.ACCURACY_NONE;
-        } else if (min >= SharedPrefsManager.ACCURACY_COUNTRY) {
+        } else if (min >= SharedPrefsManager.DISPLACEMENT_COUNTRY) {
             newAccuracy = SharedPrefsManager.ACCURACY_COUNTRY;
-        } else if (min >= SharedPrefsManager.ACCURACY_CITY) {
+        } else if (min >= SharedPrefsManager.DISPLACEMENT_CITY) {
             newAccuracy = SharedPrefsManager.ACCURACY_CITY;
         } else {
             newAccuracy = SharedPrefsManager.ACCURACY_STREET;
