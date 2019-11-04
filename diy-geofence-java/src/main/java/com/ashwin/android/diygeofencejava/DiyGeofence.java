@@ -49,7 +49,7 @@ public class DiyGeofence {
         LocationWorker locationWorker = new LocationWorker(context);
         long delay = SharedPrefsManager.get(context).getLong(SharedPrefsManager.INITIAL_LOCATION_UPDATE_DELAY, SharedPrefsManager.DEFAULT_INITIAL_LOCATION_UPDATE_DELAY);
         mMainHandler.postDelayed(locationWorker, delay);
-        Logger.d("Diy Geofence is initialized successfully");
+        Logger.d("DIY Geofence is initialized successfully");
     }
 
     // Configurations
