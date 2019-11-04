@@ -12,19 +12,26 @@ import androidx.core.app.NotificationManagerCompat;
 import com.ashwin.android.diygeofencejava.DiyGeofence;
 import com.ashwin.android.diygeofencejava.DiyGeofenceListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MyGeofenceListener implements DiyGeofenceListener {
     private static final String CHANNEL_ID = "my-channel";
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
 
     @Override
     public void onEnter(Context context, String id) {
         Log.w(DiyGeofence.DEBUG_TAG, "app: on-enter: " + id);
-        showNotification(context, id, "Entered");
+        String title = formatter.format(new Date()) + ": Entered";
+        showNotification(context, title, id);
     }
 
     @Override
     public void onExit(Context context, String id) {
         Log.w(DiyGeofence.DEBUG_TAG, "app: on-exit: " + id);
-        showNotification(context, id, "Exited");
+        String title = formatter.format(new Date()) + ": Exited";
+        showNotification(context, title, id);
     }
 
     private void createNotificationChannel(Context context) {

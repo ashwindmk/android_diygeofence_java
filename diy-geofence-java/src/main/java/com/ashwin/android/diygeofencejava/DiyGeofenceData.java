@@ -1,5 +1,8 @@
 package com.ashwin.android.diygeofencejava;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class DiyGeofenceData {
     private String id;
     private double lat;
@@ -60,5 +63,19 @@ public class DiyGeofenceData {
             result = 31 * result + (element == null ? 0 : element.hashCode());
         }
         return result;
+    }
+
+    public JSONObject toJson() {
+        JSONObject json = null;
+        try {
+            json = new JSONObject();
+            json.put("id", this.id);
+            json.put("lat", this.lat);
+            json.put("lng", this.lng);
+            json.put("rad", this.rad);
+        } catch (JSONException e) {
+            Logger.e("Exception while converting DiyGeofence Data to JSON", e);
+        }
+        return json;
     }
 }

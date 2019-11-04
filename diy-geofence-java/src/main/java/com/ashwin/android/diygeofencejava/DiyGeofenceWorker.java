@@ -2,7 +2,6 @@ package com.ashwin.android.diygeofencejava;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,16 +65,15 @@ class DiyGeofenceWorker implements Runnable {
                     enteredGeofences.add(geofence.getId());
                 }
 
-                if (distance <= min) {
-                    min = distance;
+                double edgeDistance = Math.abs(distance - geofence.getRad());
+                if (edgeDistance <= min) {
+                    min = edgeDistance;
                     closestId = geofence.getId();
                 }
             }
         }
 
-        if (BuildConfig.DEBUG) {
-            Log.w(DiyGeofence.DEBUG_TAG, "Closest geofence: " + closestId + ", min distance: " + min);
-        }
+        Logger.d(DiyGeofence.DEBUG_TAG, "Closest geofence: " + closestId + ", min distance: " + min);
 
         // Exited geofences
         exitedGeofences.addAll(geofenceIds);

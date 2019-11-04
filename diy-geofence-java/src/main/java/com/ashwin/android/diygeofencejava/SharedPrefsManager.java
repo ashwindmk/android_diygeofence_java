@@ -29,7 +29,7 @@ class SharedPrefsManager {
     private static final long ONE_HOUR = 60 * ONE_MINUTE;
     private static final float ONE_KILOMETER = 1000f;
 
-    static final long DEFAULT_INITIAL_LOCATION_UPDATE_DELAY = 5 * ONE_SECOND;
+    static final long DEFAULT_INITIAL_LOCATION_UPDATE_DELAY = 10 * ONE_SECOND;
 
     // Street
     static final long INTERVAL_STREET = 10L * ONE_MINUTE;

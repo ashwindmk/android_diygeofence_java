@@ -1,0 +1,2 @@
+-keep class com.ashwin.android.diygeofencejava.**{*;}
+-dontwarn com.ashwin.android.diygeofencejava.**

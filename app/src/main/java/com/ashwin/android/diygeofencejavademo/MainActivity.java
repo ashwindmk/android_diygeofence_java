@@ -13,25 +13,21 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ashwin.android.diygeofencejava.DiyGeofence;
-import com.ashwin.android.diygeofencejava.DiyGeofenceData;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = DiyGeofence.DEBUG_TAG;
+    private static final String TAG = DiyGeofence.DEBUG_TAG + ": app";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        registerGeofences();
     }
 
     @Override
@@ -51,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
+
+        registerGeofences();
+
         getRegisteredGeofences();
     }
 
@@ -70,38 +69,59 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length <= 0) {
                 Log.i(TAG, "User interaction was cancelled.");
                 Toast.makeText(MainActivity.this, "Permission cancelled", Toast.LENGTH_LONG).show();
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(TAG, "Permission granted");
-                Toast.makeText(MainActivity.this, "Permission granted", Toast.LENGTH_LONG).show();
-                DiyGeofence.updateLocation(getBaseContext(), true);
+            } else if (permissions.length == grantResults.length) {
+                 int len = permissions.length;
+
+                 for (int i = 0; i < len; i++) {
+                     String permission = permissions[i];
+                     int grantResult = grantResults[i];
+
+                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                         Log.i(TAG, permission + " permission granted");
+                         Toast.makeText(MainActivity.this, permission + " permission granted", Toast.LENGTH_LONG).show();
+
+                         if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                             DiyGeofence.updateLocation(getBaseContext(), true);
+                         }
+                     } else {
+                         Log.i(TAG, permission + " permission denied");
+                         Toast.makeText(MainActivity.this, permission + " permission denied", Toast.LENGTH_LONG).show();
+                     }
+                 }
             } else {
-                Log.i(TAG, "Permission denied");
-                Toast.makeText(MainActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
+                // This should never happen
+                Log.e(TAG, "number of permissions and granted-results mismatch");
             }
         }
     }
 
     private void registerGeofences() {
-        Log.w(TAG, "app: Registering geofences...");
+        Log.w(TAG, "Registering geofences...");
 
         Context context = getBaseContext();
         double rad = 500;
         DiyGeofence.addGeofence(context, "bandra", 19.0607, 72.8416, rad);
-        DiyGeofence.addGeofence(context, "home", 19.0816, 72.8556, 600d);
-        DiyGeofence.addGeofence(context, "santacruz", 19.0817025, 72.8414561, rad);
-        DiyGeofence.addGeofence(context, "vile_parle", 19.0995335, 72.8439462, rad);
-        DiyGeofence.addGeofence(context, "andheri", 19.1188514, 72.8472434, rad);
-        DiyGeofence.addGeofence(context, "jogeshwari", 19.1361473, 72.8488414, rad);
-        DiyGeofence.addGeofence(context, "ram_mandir", 19.151618, 72.8501295, rad);
-        DiyGeofence.addGeofence(context, "lotus_corporate_park", 19.14519, 72.8528428, rad);
+        DiyGeofence.addGeofence(context, "vakola", 19.0816, 72.8556, rad);
+        DiyGeofence.addGeofence(context, "santacruz", 19.0817, 72.8415, rad);
+        DiyGeofence.addGeofence(context, "vile_parle", 19.0995, 72.8439, rad);
+        DiyGeofence.addGeofence(context, "andheri", 19.1189, 72.8472, rad);
+        DiyGeofence.addGeofence(context, "jogeshwari", 19.1361, 72.8488, rad);
+        DiyGeofence.addGeofence(context, "ram_mandir", 19.1516, 72.8501, rad);
+        DiyGeofence.addGeofence(context, "lotus_corporate_park", 19.1447, 72.8533, rad);
         DiyGeofence.addGeofence(context, "goregaon", 19.1648, 72.8493, rad);
     }
 
     private void getRegisteredGeofences() {
-        Set<DiyGeofenceData> geofences = DiyGeofence.getAllGeofences(getBaseContext());
-        Log.w(TAG, "app: registered geofences: " + geofences.size());
-        for (DiyGeofenceData geofence : geofences) {
-            Log.w(TAG, "app: " + geofence.toString());
+        JSONArray geofences = DiyGeofence.getAllGeofences(getBaseContext());
+        int len = geofences.length();
+        Log.w(TAG, "registered geofences: " + len);
+        for (int i = 0; i < len; i++) {
+            try {
+                JSONObject geofence = geofences.getJSONObject(i);
+                Log.w(TAG, String.valueOf(geofence));
+            } catch (JSONException e) {
+                Log.e(TAG, "Exception while logging geofence", e);
+            }
         }
     }
 }

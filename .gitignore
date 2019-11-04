@@ -12,3 +12,5 @@
 /captures
 .externalNativeBuild
 .cxx
+
+diy-geofence-java/local.properties

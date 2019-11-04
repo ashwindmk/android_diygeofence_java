@@ -16,12 +16,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public class DiyGeofence {
-    public static final String DEBUG_TAG = "diy-geofence-java";
+    public static final String DEBUG_TAG = "diy-geofence";
 
     private static final int REQUEST_CODE = 1024;
 
@@ -40,10 +43,13 @@ public class DiyGeofence {
         }
     }
 
+    private static PendingIntent mPendingIntent = null;
+
     public static void init(Context context) {
         LocationWorker locationWorker = new LocationWorker(context);
         long delay = SharedPrefsManager.get(context).getLong(SharedPrefsManager.INITIAL_LOCATION_UPDATE_DELAY, SharedPrefsManager.DEFAULT_INITIAL_LOCATION_UPDATE_DELAY);
         mMainHandler.postDelayed(locationWorker, delay);
+        Logger.d("Diy Geofence is initialized successfully");
     }
 
     // Configurations
@@ -69,6 +75,26 @@ public class DiyGeofence {
 
     // APIs
     public static boolean addGeofence(Context context, String id, double lat, double lng, double rad) {
+        if (id == null || id.isEmpty() || (id.trim()).isEmpty()) {
+            Logger.e("Invalid ID, must be non-empty string.");
+            return false;
+        }
+
+        if (rad <= 0) {
+            Logger.e("Invalid radius: " + rad + " for " + id + ". Radius must be greater than 0.");
+            return false;
+        }
+
+        if (lat < -90d || lat > 90D) {
+            Logger.e("Invalid latitude: " + lat + " for id: " + id);
+            return false;
+        }
+
+        if (lng < -180d || lng > 180d) {
+            Logger.e("Invalid longitude: " + lng + " for id: " + id);
+            return false;
+        }
+
         if (isGeofenceAdded(context, id, lat, lng, rad)) {
             Logger.d("Geofence " + id + " is already added");
             return true;
@@ -94,15 +120,26 @@ public class DiyGeofence {
     }
 
     public static boolean removeAllGeofences(Context context) {
-        return getDb(context).removeAllGeofences();
+        boolean areRemoved = getDb(context).removeAllGeofences();
+        if (areRemoved) {
+            stopLocationUpdates(context);
+            Logger.d("All geofences removed successfully");
+        }
+        return areRemoved;
     }
 
-    public static DiyGeofenceData getGeofence(Context context, String id) {
-        return getDb(context).getGeofence(id);
+    public static JSONObject getGeofence(Context context, String id) {
+        DiyGeofenceData diyGeofenceData = getDb(context).getGeofence(id);
+        return diyGeofenceData.toJson();
     }
 
-    public static Set<DiyGeofenceData> getAllGeofences(Context context) {
-        return getDb(context).getAllGeofences();
+    public static JSONArray getAllGeofences(Context context) {
+        Set<DiyGeofenceData> diyGeofenceDataSet = getDb(context).getAllGeofences();
+        JSONArray jsonArray = new JSONArray();
+        for (DiyGeofenceData diyGeofenceData : diyGeofenceDataSet) {
+            jsonArray.put(diyGeofenceData.toJson());
+        }
+        return jsonArray;
     }
 
     public static void setLocation(Context context, Location location) {
@@ -208,9 +245,12 @@ public class DiyGeofence {
     }
 
     private static PendingIntent getPendingIntent(Context context) {
-        Intent intent = new Intent(context, LocationUpdateReceiver.class);
-        intent.setAction(LocationUpdateReceiver.ACTION_PROCESS_UPDATES);
-        return PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (mPendingIntent == null) {
+            Intent intent = new Intent(context, LocationUpdateReceiver.class);
+            intent.setAction(LocationUpdateReceiver.ACTION_PROCESS_UPDATES);
+            mPendingIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+        return mPendingIntent;
     }
 
     static void updateLocationUpdates(Context context, double min) {
