@@ -19,16 +19,23 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontpreverify
+
 -keepattributes InnerClasses
 -keepattributes Signature
 -keepattributes Deprecated
 -keepattributes EnclosingMethod
 -keepparameternames
--dontwarn com.ashwin.android.diygeofencejava.**
+
+-keeppackagenames com.ashwin.android.diygeofencejava
 
 -keep public class * extends android.content.BroadcastReceiver
 
 -keep public class com.ashwin.android.diygeofencejava.DiyGeofence
 -keep class com.ashwin.android.diygeofencejava.DiyGeofence { public <methods>; }
+-keepclassmembers class com.ashwin.android.diygeofencejava.DiyGeofence {
+    public static final java.lang.String TAG;
+}
 
 -keep class com.ashwin.android.diygeofencejava.DiyGeofenceListener { *; }
