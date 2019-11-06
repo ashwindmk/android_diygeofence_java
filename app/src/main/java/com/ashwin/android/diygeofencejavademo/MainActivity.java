@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = DiyGeofence.DEBUG_TAG + ": app";
+    private static final String TAG = DiyGeofence.TAG + ": app";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     @Override

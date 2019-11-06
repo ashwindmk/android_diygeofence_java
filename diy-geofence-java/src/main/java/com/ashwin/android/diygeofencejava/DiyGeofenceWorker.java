@@ -73,16 +73,13 @@ class DiyGeofenceWorker implements Runnable {
             }
         }
 
-        Logger.d(DiyGeofence.DEBUG_TAG, "Closest geofence: " + closestId + ", min distance: " + min);
+        Logger.d("Closest geofence: " + closestId + ", min distance: " + min);
 
         // Exited geofences
         exitedGeofences.addAll(geofenceIds);
         exitedGeofences.removeAll(enteredGeofences);
         for (String exitedGeofence : exitedGeofences) {
-            if (BuildConfig.DEBUG) {
-                Logger.d("Not in geofence: " + exitedGeofence);
-            }
-
+            Logger.d("Not in geofence: " + exitedGeofence);
             if (lastEnteredGeofences.contains(exitedGeofence)) {
                 DiyGeofence.dispatchExitCallback(context, exitedGeofence);
             }
@@ -91,10 +88,7 @@ class DiyGeofenceWorker implements Runnable {
         // Entered geofences
         if (!enteredGeofences.isEmpty()) {
             for (String enteredGeofence : enteredGeofences) {
-                if (BuildConfig.DEBUG) {
-                    Logger.d("In geofence: " + enteredGeofence);
-                }
-
+                Logger.d("In geofence: " + enteredGeofence);
                 if (!lastEnteredGeofences.contains(enteredGeofence)) {
                     DiyGeofence.dispatchEnterCallback(context, enteredGeofence);
                 }

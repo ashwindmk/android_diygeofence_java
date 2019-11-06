@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 public class DiyGeofence {
-    public static final String DEBUG_TAG = "diy-geofence";
+    public static final String TAG = "diy-geofence";
 
-    private static final int REQUEST_CODE = 1024;
+    private static final int REQUEST_CODE = TAG.hashCode();
 
     private static DiyGeofenceListener mDiyGeofenceListener = null;
 

@@ -22,14 +22,14 @@ public class MyGeofenceListener implements DiyGeofenceListener {
 
     @Override
     public void onEnter(Context context, String id) {
-        Log.w(DiyGeofence.DEBUG_TAG, "app: on-enter: " + id);
+        Log.w(DiyGeofence.TAG, "app: on-enter: " + id);
         String title = formatter.format(new Date()) + ": Entered";
         showNotification(context, title, id);
     }
 
     @Override
     public void onExit(Context context, String id) {
-        Log.w(DiyGeofence.DEBUG_TAG, "app: on-exit: " + id);
+        Log.w(DiyGeofence.TAG, "app: on-exit: " + id);
         String title = formatter.format(new Date()) + ": Exited";
         showNotification(context, title, id);
     }

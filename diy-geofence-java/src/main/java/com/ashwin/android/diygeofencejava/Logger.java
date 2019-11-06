@@ -3,8 +3,6 @@ package com.ashwin.android.diygeofencejava;
 import android.util.Log;
 
 class Logger {
-    private static final String TAG = "diy-geofence-java";
-
     private static int sLevel = Log.DEBUG;
 
     static void setLevel(int level) {
@@ -12,7 +10,7 @@ class Logger {
     }
 
     static void d(String msg) {
-        d(TAG, msg);
+        d(DiyGeofence.TAG, msg);
     }
 
     static void d(String tag, String msg) {
@@ -23,13 +21,13 @@ class Logger {
 
     static void e(String msg) {
         if (sLevel <= Log.ERROR) {
-            Log.e(TAG, msg);
+            Log.e(DiyGeofence.TAG, msg);
         }
     }
 
     static void e(String msg, Throwable t) {
         if (sLevel <= Log.ERROR) {
-            Log.e(TAG, msg, t);
+            Log.e(DiyGeofence.TAG, msg, t);
         }
     }
 }
