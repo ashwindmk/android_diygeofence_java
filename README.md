@@ -3,7 +3,7 @@
 This Android library is developed to provide geofence enter and exit callbacks without using the native geofencing functionalities.
 
 
-### Installation
+### Download
 
 app/build.gradle
 
@@ -14,6 +14,19 @@ dependencies {
     implementation 'com.ashwin.android:diy-geofence-java:0.0.+'
 }
 ```
+
+
+### Get Permissions
+
+```xml
+<manifest ...
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    ...
+```
+
+Request `ACCESS_FINE_LOCATION` (for Android version >= 23) and `ACCESS_BACKGROUND_LOCATION` (for Android version >= 29) permissions in your Activity.
 
 
 ### Initialization
