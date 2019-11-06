@@ -84,7 +84,7 @@ install {
                     developer {
                         id 'ashwin-dinesh'
                         name 'Ashwin Dinesh'
-                        email 'ashwin.dinesh01@gmail.com'
+                        email properties.getProperty("email")
                     }
                 }
             }
