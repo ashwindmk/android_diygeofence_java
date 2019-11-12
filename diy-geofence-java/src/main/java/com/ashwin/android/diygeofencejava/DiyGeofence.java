@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -119,10 +120,20 @@ public class DiyGeofence {
         return isRemoved;
     }
 
+    public static boolean isGeofenceAdded(Context context, String id, double lat, double lng, double rad) {
+        DiyGeofenceData prevGeofence = getDb(context).getGeofence(id);
+        if (prevGeofence == null) {
+            return false;
+        }
+        DiyGeofenceData newGeofence = new DiyGeofenceData(id, lat, lng, rad);
+        return newGeofence.equals(prevGeofence);
+    }
+
     public static boolean removeAllGeofences(Context context) {
         boolean areRemoved = getDb(context).removeAllGeofences();
         if (areRemoved) {
             stopLocationUpdates(context);
+            SharedPrefsManager.get(context).put(SharedPrefsManager.LAST_ENTERED_GEOFENCES, new HashSet<String>());
             Logger.d("All geofences removed successfully");
         }
         return areRemoved;
@@ -209,15 +220,6 @@ public class DiyGeofence {
     }
 
     // Internal
-    static boolean isGeofenceAdded(Context context, String id, double lat, double lng, double rad) {
-        DiyGeofenceData prevGeofence = getDb(context).getGeofence(id);
-        if (prevGeofence == null) {
-            return false;
-        }
-        DiyGeofenceData newGeofence = new DiyGeofenceData(id, lat, lng, rad);
-        return newGeofence.equals(prevGeofence);
-    }
-
     private static boolean canUpdateLocation(Context context) {
         boolean canUpdateLocation = true;
 

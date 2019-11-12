@@ -43,7 +43,7 @@ properties.load(project.file('local.properties').newDataInputStream())
 
 def groupid = "com.ashwin.android"
 def artifactid = "diy-geofence-java"
-version = "0.0.1"
+version = "0.0.2"
 group = groupid
 
 task androidSourcesJar(type: Jar) {

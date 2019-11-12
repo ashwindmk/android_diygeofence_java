@@ -3,6 +3,7 @@ package com.ashwin.android.diygeofencejavademo;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.preference.PreferenceManager;
 
 import android.Manifest;
 import android.content.Context;
@@ -10,6 +11,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.ashwin.android.diygeofencejava.DiyGeofence;
@@ -24,38 +27,82 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = DiyGeofence.TAG + ": app";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
+    private static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED";
+
+    private Button mGeofencesButton = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mGeofencesButton = (Button) findViewById(R.id.geofences_button);
+
+        mGeofencesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean areGeofencesAdded = getGeofencesAdded(getApplicationContext());
+                if (!checkPermissions(getApplicationContext())) {
+                    requestPermissions();
+                } else {
+                    if (areGeofencesAdded) {
+                        removeGeofences();
+                    } else {
+                        addGeofences();
+                    }
+                }
+            }
+        });
+
+        setButtonState();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION) || !checkPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                startPermissionRequest(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION});
-            }
+    static boolean getGeofencesAdded(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(GEOFENCES_ADDED_KEY, false);
+    }
+
+    private void updateGeofencesAdded(Context context, boolean added) {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(GEOFENCES_ADDED_KEY, added)
+                .apply();
+
+        setButtonState();
+    }
+
+    private void setButtonState() {
+        if (getGeofencesAdded(getApplicationContext())) {
+            mGeofencesButton.setText("REMOVE");
         } else {
-            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                startPermissionRequest(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
-            }
+            mGeofencesButton.setText("ADD");
         }
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-
-        registerGeofences();
-
-        getRegisteredGeofences();
+    protected void onStart() {
+        super.onStart();
+        getAddedGeofences();
     }
 
-    private boolean checkPermission(String permission) {
-        int permissionState = ActivityCompat.checkSelfPermission(this, permission);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
+    static boolean checkPermissions(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return checkPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) && checkPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        } else {
+            return checkPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    static boolean checkPermission(Context context, String permission) {
+        int value = context.getPackageManager().checkPermission(permission, context.getPackageName());
+        return value == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startPermissionRequest(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION});
+        } else {
+            startPermissionRequest(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
+        }
     }
 
     private void startPermissionRequest(String[] permissions) {
@@ -69,35 +116,32 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length <= 0) {
                 Log.i(TAG, "User interaction was cancelled.");
                 Toast.makeText(MainActivity.this, "Permission cancelled", Toast.LENGTH_LONG).show();
-            } else if (permissions.length == grantResults.length) {
-                 int len = permissions.length;
-
-                 for (int i = 0; i < len; i++) {
-                     String permission = permissions[i];
-                     int grantResult = grantResults[i];
-
-                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                         Log.i(TAG, permission + " permission granted");
-                         Toast.makeText(MainActivity.this, permission + " permission granted", Toast.LENGTH_LONG).show();
-
-                         if (permission.equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                             DiyGeofence.updateLocation(getBaseContext(), true);
-                         }
-                     } else {
-                         Log.i(TAG, permission + " permission denied");
-                         Toast.makeText(MainActivity.this, permission + " permission denied", Toast.LENGTH_LONG).show();
-                     }
-                 }
             } else {
-                // This should never happen
-                Log.e(TAG, "number of permissions and granted-results mismatch");
+                boolean allPermissionsGranted = false;
+
+                for (int grantResult : grantResults) {
+                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                        allPermissionsGranted = true;
+                    } else {
+                        allPermissionsGranted = false;
+                        break;
+                    }
+                }
+
+                if (allPermissionsGranted) {
+                    Log.i(TAG, "All permissions granted");
+                    Toast.makeText(MainActivity.this, "All permissions granted", Toast.LENGTH_LONG).show();
+                    addGeofences();
+                } else {
+                    Log.i(TAG, "Insufficient permission");
+                    Toast.makeText(MainActivity.this, "Permission denied", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
 
-    private void registerGeofences() {
+    private void addGeofences() {
         Log.w(TAG, "Registering geofences...");
-
         Context context = getBaseContext();
         double rad = 500;
         DiyGeofence.addGeofence(context, "bandra", 19.0607, 72.8416, rad);
@@ -109,9 +153,11 @@ public class MainActivity extends AppCompatActivity {
         DiyGeofence.addGeofence(context, "ram_mandir", 19.1516, 72.8501, rad);
         DiyGeofence.addGeofence(context, "lotus_corporate_park", 19.1447, 72.8533, rad);
         DiyGeofence.addGeofence(context, "goregaon", 19.1648, 72.8493, rad);
+
+        updateGeofencesAdded(getApplicationContext(), true);
     }
 
-    private void getRegisteredGeofences() {
+    private void getAddedGeofences() {
         JSONArray geofences = DiyGeofence.getAllGeofences(getBaseContext());
         int len = geofences.length();
         Log.w(TAG, "registered geofences: " + len);
@@ -123,5 +169,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Exception while logging geofence", e);
             }
         }
+    }
+
+    private void removeGeofences() {
+        DiyGeofence.removeAllGeofences(getApplicationContext());
+        updateGeofencesAdded(getApplicationContext(), false);
     }
 }

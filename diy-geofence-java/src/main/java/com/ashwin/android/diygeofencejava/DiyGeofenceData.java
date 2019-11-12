@@ -44,7 +44,7 @@ public class DiyGeofenceData {
             return (this.id.equals(other.id)
                     && this.lat == other.lat
                     && this.lng == other.lng
-                    && this.rad == other.rad);
+                    && Math.abs(this.rad - other.rad) <= 0.0001);
         } else {
             return false;
         }
@@ -78,4 +78,6 @@ public class DiyGeofenceData {
         }
         return json;
     }
+
+
 }
