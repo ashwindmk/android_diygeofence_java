@@ -4,6 +4,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DiyGeofenceData {
+    private static final double COORDINATE_EPSILON = 0.00000001;
+    private static final double RADIUS_EPSILON = 0.0001;
+
     private String id;
     private double lat;
     private double lng;
@@ -42,9 +45,9 @@ public class DiyGeofenceData {
         if (obj instanceof DiyGeofenceData) {
             DiyGeofenceData other = (DiyGeofenceData) obj;
             return (this.id.equals(other.id)
-                    && this.lat == other.lat
-                    && this.lng == other.lng
-                    && Math.abs(this.rad - other.rad) <= 0.0001);
+                    && Math.abs(this.lat - other.lat) <= COORDINATE_EPSILON
+                    && Math.abs(this.lng - other.lng) <= COORDINATE_EPSILON
+                    && Math.abs(this.rad - other.rad) <= RADIUS_EPSILON);
         } else {
             return false;
         }

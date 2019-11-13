@@ -81,12 +81,14 @@ public class DiyGeofence {
             return false;
         }
 
-        if (rad <= 0) {
-            Logger.e("Invalid radius: " + rad + " for " + id + ". Radius must be greater than 0.");
+        final double MIN_RAD = 0.5d;
+
+        if (rad <= MIN_RAD) {
+            Logger.e("Invalid radius: " + rad + " for " + id + ". Radius must be greater than " + MIN_RAD + " meters.");
             return false;
         }
 
-        if (lat < -90d || lat > 90D) {
+        if (lat < -90d || lat > 90d) {
             Logger.e("Invalid latitude: " + lat + " for id: " + id);
             return false;
         }
